@@ -1,0 +1,540 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "Bootstrap Next.js project and UI stack",
+        "description": "Create the Money Tracker Next.js 16 app with TypeScript, Tailwind CSS 4, and shadcn/ui foundation.",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Initialize money-tracker with App Router under src/app. Install and configure Tailwind CSS 4, shadcn/ui (Card, Input, Button, Form). Set up layout.tsx, globals.css, and base folder structure per PRD: src/components/ui, src/lib. No auth in this module.",
+        "testStrategy": "Run dev server; verify home route renders with shadcn components and no TypeScript errors.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold Next.js 16 App Router project",
+            "description": "Create project with TypeScript and src/ directory layout.",
+            "status": "done",
+            "dependencies": [],
+            "details": "Use create-next-app or equivalent with App Router, TypeScript, src directory.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T13:58:32.475Z"
+          },
+          {
+            "id": 2,
+            "title": "Configure Tailwind CSS 4",
+            "description": "Wire Tailwind 4 with globals.css and PostCSS if required.",
+            "status": "done",
+            "dependencies": [
+              1
+            ],
+            "details": "Follow Tailwind 4 setup for Next.js; ensure styles apply on /.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T13:58:40.483Z"
+          },
+          {
+            "id": 3,
+            "title": "Install shadcn/ui primitives",
+            "description": "Add Card, Input, Button, Form components to src/components/ui.",
+            "status": "done",
+            "dependencies": [
+              2
+            ],
+            "details": "Run shadcn init and add required components per PRD.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T13:58:48.132Z"
+          },
+          {
+            "id": 4,
+            "title": "Create placeholder home page",
+            "description": "Add src/app/page.tsx and layout.tsx shell for later features.",
+            "status": "done",
+            "dependencies": [
+              3
+            ],
+            "details": "Minimal page with app title; ready for transaction list integration.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T13:58:56.282Z"
+          }
+        ],
+        "updatedAt": "2026-05-21T13:58:56.282Z"
+      },
+      {
+        "id": "2",
+        "title": "Configure Supabase clients and middleware",
+        "description": "Set up Supabase project integration with @supabase/ssr (browser + server clients and middleware).",
+        "status": "done",
+        "dependencies": [
+          "1"
+        ],
+        "priority": "high",
+        "details": "Create Supabase project; add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local. Install @supabase/ssr only (not deprecated auth-helpers). Implement src/lib/supabase/client.ts (createBrowserClient), server.ts (createServerClient), and src/middleware.ts for session refresh. Never expose service role key to browser.",
+        "testStrategy": "App builds; middleware runs without errors; server client can connect when keys are set.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Supabase project and env vars",
+            "description": "Obtain URL and anon key; document in .env.example.",
+            "status": "done",
+            "dependencies": [],
+            "details": "Copy keys to .env.local; keep .env.local gitignored.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T14:31:43.473Z"
+          },
+          {
+            "id": 2,
+            "title": "Install @supabase/ssr",
+            "description": "Add package and remove any auth-helpers usage if present.",
+            "status": "done",
+            "dependencies": [
+              1
+            ],
+            "details": "npm install @supabase/ssr @supabase/supabase-js",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T14:00:01.982Z"
+          },
+          {
+            "id": 3,
+            "title": "Implement browser and server clients",
+            "description": "Create client.ts and server.ts under src/lib/supabase.",
+            "status": "done",
+            "dependencies": [
+              2
+            ],
+            "details": "Follow @supabase/ssr Next.js App Router patterns for cookie handling.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T14:00:10.254Z"
+          },
+          {
+            "id": 4,
+            "title": "Add middleware for session refresh",
+            "description": "Create src/middleware.ts updating Supabase session on requests.",
+            "status": "done",
+            "dependencies": [
+              3
+            ],
+            "details": "Match official SSR middleware example; exclude static assets as needed.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T14:00:18.447Z"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:31:43.473Z"
+      },
+      {
+        "id": "3",
+        "title": "Create transactions table and RLS policies",
+        "description": "Define the transactions schema in Supabase with open RLS for the learning module.",
+        "status": "done",
+        "dependencies": [
+          "2"
+        ],
+        "priority": "high",
+        "details": "Table transactions: id int8 PK auto, amount numeric(10,2), type text (income|expense), category text, description text nullable max 280, date date, created_at timestamptz default now(). Enable RLS; policies allow SELECT/INSERT/UPDATE/DELETE for all (educational only). Seed 5 test rows covering income and expense categories from PRD.",
+        "testStrategy": "Query table in Supabase SQL editor; confirm 5 seed rows and policies allow anon CRUD.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create transactions table in Supabase",
+            "description": "Use Table Editor or SQL with correct column types.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Match PRD schema exactly; amount as numeric not string.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Enable RLS and permissive policies",
+            "description": "Add policies for anon access for this module.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Document that Module 7 will restrict by auth.uid().",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Seed five sample transactions",
+            "description": "Mix income/expense and categories: Зарплата, Еда, etc.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Use realistic amounts and dates within current month for balance testing.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Add Transaction TypeScript types",
+            "description": "Create src/lib/types.ts for Transaction row type.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "No any types; amount as number in app layer.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:31:56.660Z"
+      },
+      {
+        "id": "4",
+        "title": "Display transaction list on home page (READ)",
+        "description": "Server Component on / fetches and renders all transactions in a table.",
+        "status": "done",
+        "dependencies": [
+          "3"
+        ],
+        "priority": "high",
+        "details": "Build transaction-list.tsx: columns date, type, category, description, amount. Green for income, red for expense. Empty state with CTA 'Добавить первую' when no rows. page.tsx uses createServerClient to select * from transactions ordered by date desc.",
+        "testStrategy": "Load / with seed data; table shows all columns with correct colors; empty DB shows empty state.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Fetch transactions in page Server Component",
+            "description": "Query Supabase from src/app/page.tsx.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Handle errors gracefully; pass data to list component.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Build TransactionList component",
+            "description": "Table UI with shadcn styling and color indicators.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Format dates and currency with thousand separators and ₽.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Implement empty state",
+            "description": "Show CTA when transactions array is empty.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Link or button placeholder for add flow (wired in task 6).",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:03.017Z"
+      },
+      {
+        "id": "5",
+        "title": "Build monthly balance summary cards",
+        "description": "BalanceSummary component shows income, expense, and balance for current month.",
+        "status": "done",
+        "dependencies": [
+          "4"
+        ],
+        "priority": "high",
+        "details": "Create balance-summary.tsx with three shadcn Cards above the table. Sum amount where type=income and type=expense for current calendar month. Balance = income - expense. Display like '65 000 ₽' with locale formatting.",
+        "testStrategy": "With seed data, card totals match manual SQL sums for the month.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Compute monthly aggregates",
+            "description": "Filter transactions by current month in server or component.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Use transaction date field; timezone consistent with user locale.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Render three summary cards",
+            "description": "Income, Expense, Balance labels in Russian per PRD.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Integrate into page.tsx above TransactionList.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Format currency display",
+            "description": "Thousand separators and ruble symbol.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Use Intl.NumberFormat ru-RU or equivalent.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:09.581Z"
+      },
+      {
+        "id": "6",
+        "title": "Add transaction via Server Action (CREATE)",
+        "description": "Form and addTransaction action with zod validation and revalidatePath.",
+        "status": "done",
+        "dependencies": [
+          "5"
+        ],
+        "priority": "high",
+        "details": "transaction-form.tsx: type radio (income/expense), amount number min 1, category select (Зарплата, Фриланс, Еда, Транспорт, Развлечения, Прочее), description optional max 280, date default today. actions.ts: addTransaction with shared zod schema (client + server). Button '+ Добавить' opens dialog or navigates to form. On success revalidatePath('/').",
+        "testStrategy": "Submit valid transaction; appears in table and updates balance cards without manual refresh.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define shared zod transaction schema",
+            "description": "Single schema for form and server action.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Export from lib; validate type enum, amount, category, date.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Implement addTransaction Server Action",
+            "description": "Insert row via server Supabase client in app/actions.ts.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Return validation errors; call revalidatePath('/') on success.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Build TransactionForm for create mode",
+            "description": "Client form with server action binding.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Use shadcn Form; dialog or dedicated route per PRD choice.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Wire Add button on home page",
+            "description": "Open form from '+ Добавить' control.",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "details": "Accessible from empty state CTA too.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:15.950Z"
+      },
+      {
+        "id": "7",
+        "title": "Delete transaction via Server Action (DELETE)",
+        "description": "Row delete with confirm dialog and deleteTransaction action.",
+        "status": "done",
+        "dependencies": [
+          "6"
+        ],
+        "priority": "medium",
+        "details": "Trash icon per row; confirm 'Точно удалить?'. deleteTransaction(id) in actions.ts; revalidatePath('/') after delete.",
+        "testStrategy": "Delete a row; confirm dialog works; row and balance update after confirm.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement deleteTransaction action",
+            "description": "Delete by id with server client.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Validate id; handle not found.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Add trash button and confirm UI",
+            "description": "Per-row delete in TransactionList.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Use browser confirm or shadcn AlertDialog.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:22.031Z"
+      },
+      {
+        "id": "8",
+        "title": "Edit transaction via Server Action (UPDATE)",
+        "description": "Reuse form in edit mode with updateTransaction and pre-filled values.",
+        "status": "done",
+        "dependencies": [
+          "6"
+        ],
+        "priority": "medium",
+        "details": "Row click opens TransactionForm with existing data. updateTransaction(id, data) in actions.ts; same zod schema; revalidatePath('/') on success.",
+        "testStrategy": "Edit amount and category; table and balance reflect changes after save.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement updateTransaction action",
+            "description": "Update row by id in actions.ts.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Partial updates allowed per schema fields.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Extend TransactionForm for edit mode",
+            "description": "Accept initial values and transaction id prop.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Switch action between add and update.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Open form on row click",
+            "description": "Wire TransactionList row click to edit form.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Avoid conflict with delete button click propagation.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:28.525Z"
+      },
+      {
+        "id": "9",
+        "title": "Optional URL filter for transaction type",
+        "description": "Filter buttons All / Income / Expense via search params on Server Component.",
+        "status": "done",
+        "dependencies": [
+          "4"
+        ],
+        "priority": "low",
+        "details": "Buttons above table: Все, Только доходы, Только расходы. Use ?type=income|expense; page reads searchParams and filters Supabase query. Bonus task from PRD section 6.",
+        "testStrategy": "Click filters; URL updates and table shows subset; 'Все' shows full list.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Add filter button UI",
+            "description": "Link or button group updating searchParams.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Preserve other params if any.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Filter Supabase query by type param",
+            "description": "Apply .eq('type', param) when type is set.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Default fetch all when param absent.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:34.755Z"
+      },
+      {
+        "id": "10",
+        "title": "REST API route and Thunder Client testing",
+        "description": "Parallel GET /api/transactions and verify CRUD via API for learning comparison.",
+        "status": "done",
+        "dependencies": [
+          "8"
+        ],
+        "priority": "medium",
+        "details": "Create src/app/api/transactions/route.ts with GET returning JSON list. Document difference vs Server Actions. Test with Thunder Client: GET returns 200 and array; optionally POST/PUT/DELETE if implemented for full CRUD exercise per PRD step 9.",
+        "testStrategy": "Thunder Client GET /api/transactions returns 200 with transaction JSON matching DB.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement GET /api/transactions",
+            "description": "Route handler using server Supabase client.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Return JSON array; proper error status codes.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Document Server Actions vs API Routes",
+            "description": "Short comment in route or AGENTS.md.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "When to use each per PRD additional rules.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "Run Thunder Client CRUD checks",
+            "description": "Verify status codes for API operations.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Save example requests if helpful for course.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-05-21T14:32:41.181Z"
+      },
+      {
+        "id": "11",
+        "title": "Deploy to Vercel with Supabase env",
+        "description": "Production deploy with environment variables and git push autodeploy.",
+        "status": "in-progress",
+        "dependencies": [
+          "10"
+        ],
+        "priority": "medium",
+        "details": "Connect repo to Vercel; set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel project settings. Push to main; verify *.vercel.app shows live data. Do not add service role to client env.",
+        "testStrategy": "Production URL loads home page, lists transactions, and create flow works against Supabase.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Vercel project and env vars",
+            "description": "Add Supabase public keys in dashboard.",
+            "status": "done",
+            "dependencies": [],
+            "details": "Match .env.local variable names.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T19:30:39.962Z"
+          },
+          {
+            "id": 2,
+            "title": "Deploy and smoke test production",
+            "description": "git push main; verify deployment URL.",
+            "status": "deferred",
+            "dependencies": [
+              1
+            ],
+            "details": "Check RLS still allows anon for demo.",
+            "parentId": "undefined",
+            "updatedAt": "2026-05-21T19:31:19.066Z"
+          }
+        ],
+        "updatedAt": "2026-05-21T19:31:19.066Z"
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2026-05-21T19:31:19.066Z",
+      "taskCount": 11,
+      "completedCount": 10,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}
