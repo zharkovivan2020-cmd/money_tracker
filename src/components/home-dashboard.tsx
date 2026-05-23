@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Link from "next/link";
+import { useState, useTransition } from "react";
+import { Plus } from "lucide-react";
 import { BalanceSummary } from "@/components/balance-summary";
 import { TransactionForm } from "@/components/transaction-form";
 import { TransactionList } from "@/components/transaction-list";
+import { TransactionTypeTabs } from "@/components/transaction-type-tabs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Transaction, TransactionType } from "@/lib/types";
 
 interface HomeDashboardProps {
@@ -26,89 +34,77 @@ export function HomeDashboard({
   summary,
   activeType,
 }: HomeDashboardProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  const [, startTransition] = useTransition();
 
   const openCreate = () => {
     setEditing(null);
-    dialogRef.current?.showModal();
+    setOpen(true);
   };
 
   const openEdit = (transaction: Transaction) => {
     setEditing(transaction);
-    dialogRef.current?.showModal();
+    setOpen(true);
   };
 
   const closeDialog = () => {
-    dialogRef.current?.close();
+    setOpen(false);
     setEditing(null);
   };
 
-  const filterClass = (type: TransactionType | null) =>
-    activeType === type
-      ? "bg-primary text-primary-foreground"
-      : "bg-secondary text-secondary-foreground";
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setEditing(null);
+  };
 
   return (
     <>
       <BalanceSummary {...summary} />
 
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href="/"
-          className={`rounded-full px-3 py-1 text-sm font-medium ${filterClass(null)}`}
-        >
-          Все
-        </Link>
-        <Link
-          href="/?type=income"
-          className={`rounded-full px-3 py-1 text-sm font-medium ${filterClass("income")}`}
-        >
-          Только доходы
-        </Link>
-        <Link
-          href="/?type=expense"
-          className={`rounded-full px-3 py-1 text-sm font-medium ${filterClass("expense")}`}
-        >
-          Только расходы
-        </Link>
-      </div>
+      <TransactionTypeTabs activeType={activeType} />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4">
           <div>
             <CardTitle>Транзакции</CardTitle>
-            <CardDescription>
-              Клик по строке — редактирование
-            </CardDescription>
+            <CardDescription>Клик по строке — редактирование</CardDescription>
           </div>
           <Button type="button" onClick={openCreate}>
-            + Добавить
+            <Plus className="size-4" />
+            Добавить
           </Button>
         </CardHeader>
         <CardContent>
-          <TransactionList transactions={transactions} onEdit={openEdit} />
+          <TransactionList
+            transactions={transactions}
+            onEdit={openEdit}
+            onCreate={openCreate}
+          />
         </CardContent>
       </Card>
 
-      <dialog
-        ref={dialogRef}
-        className="w-full max-w-md rounded-lg border bg-background p-0 shadow-lg backdrop:bg-black/40 open:backdrop:bg-black/40"
-        onClose={() => setEditing(null)}
-      >
-        <div className="border-b px-4 py-3">
-          <h2 className="font-semibold">
-            {editing ? "Редактировать транзакцию" : "Новая транзакция"}
-          </h2>
-        </div>
-        <div className="p-4">
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editing ? "Редактировать транзакцию" : "Новая транзакция"}
+            </DialogTitle>
+            <DialogDescription>
+              {editing
+                ? "Измените поля и сохраните."
+                : "Заполните данные о доходе или расходе."}
+            </DialogDescription>
+          </DialogHeader>
           <TransactionForm
             key={editing?.id ?? "new"}
             transaction={editing}
-            onDone={closeDialog}
+            onDone={() => {
+              startTransition(() => closeDialog());
+            }}
           />
-        </div>
-      </dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -2,9 +2,9 @@
 
 **Title:** Configure Supabase clients and middleware
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 1
+**Dependencies:** 1 ✓
 
 **Priority:** high
 
@@ -22,7 +22,7 @@ App builds; middleware runs without errors; server client can connect when keys 
 
 ### 2.1. Create Supabase project and env vars
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Obtain URL and anon key; document in .env.example.
@@ -33,7 +33,7 @@ Copy keys to .env.local; keep .env.local gitignored.
 
 ### 2.2. Install @supabase/ssr
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 2.1  
 
 Add package and remove any auth-helpers usage if present.
@@ -44,7 +44,7 @@ npm install @supabase/ssr @supabase/supabase-js
 
 ### 2.3. Implement browser and server clients
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 2.2  
 
 Create client.ts and server.ts under src/lib/supabase.
@@ -55,7 +55,7 @@ Follow @supabase/ssr Next.js App Router patterns for cookie handling.
 
 ### 2.4. Add middleware for session refresh
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 2.3  
 
 Create src/middleware.ts updating Supabase session on requests.

@@ -4,6 +4,20 @@ import { revalidatePath } from "next/cache";
 import { transactionSchema } from "@/lib/transaction-schema";
 import { createClient } from "@/lib/supabase/server";
 
+async function requireUserId() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return { error: "Необходимо войти в систему" as const, userId: null };
+  }
+
+  return { error: null, userId: user.id };
+}
+
 export async function addTransaction(formData: FormData) {
   const parsed = transactionSchema.safeParse({
     type: formData.get("type"),
@@ -17,8 +31,16 @@ export async function addTransaction(formData: FormData) {
     return { error: parsed.error.flatten().fieldErrors };
   }
 
+  const auth = await requireUserId();
+  if (auth.error) {
+    return { error: { _form: [auth.error] } };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.from("transactions").insert(parsed.data);
+  const { error } = await supabase.from("transactions").insert({
+    ...parsed.data,
+    user_id: auth.userId,
+  });
 
   if (error) {
     return { error: { _form: [error.message] } };
@@ -41,11 +63,17 @@ export async function updateTransaction(id: number, formData: FormData) {
     return { error: parsed.error.flatten().fieldErrors };
   }
 
+  const auth = await requireUserId();
+  if (auth.error) {
+    return { error: { _form: [auth.error] } };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("transactions")
     .update(parsed.data)
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", auth.userId!);
 
   if (error) {
     return { error: { _form: [error.message] } };
@@ -64,8 +92,17 @@ export async function updateTransactionFromForm(formData: FormData) {
 }
 
 export async function deleteTransaction(id: number) {
+  const auth = await requireUserId();
+  if (auth.error) {
+    return { error: auth.error };
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", auth.userId!);
 
   if (error) {
     return { error: error.message };

@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useRef, useTransition } from "react";
 import {
   addTransaction,
   updateTransactionFromForm,
 } from "@/app/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { CATEGORIES } from "@/lib/transaction-schema";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 import type { Transaction } from "@/lib/types";
 
 interface TransactionFormProps {
@@ -22,22 +23,34 @@ function todayIso() {
 
 export function TransactionForm({ transaction, onDone }: TransactionFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [pending, startTransition] = useTransition();
   const isEdit = Boolean(transaction);
 
   return (
     <form
       ref={formRef}
-      action={async (formData) => {
-        const result = isEdit
-          ? await updateTransactionFromForm(formData)
-          : await addTransaction(formData);
+      action={(formData) => {
+        startTransition(async () => {
+          const result = isEdit
+            ? await updateTransactionFromForm(formData)
+            : await addTransaction(formData);
 
-        if (result && "error" in result && result.error) {
-          return;
-        }
+          if (result && "error" in result && result.error) {
+            const err = result.error as string | Record<string, string[]>;
+            const message =
+              typeof err === "string"
+                ? err
+                : Object.values(err).flat().join(", ");
+            showErrorToast(message || "Не удалось сохранить");
+            return;
+          }
 
-        formRef.current?.reset();
-        onDone?.();
+          formRef.current?.reset();
+          showSuccessToast(
+            isEdit ? "Транзакция обновлена" : "Транзакция добавлена",
+          );
+          onDone?.();
+        });
       }}
       className="grid gap-4"
     >
@@ -124,10 +137,17 @@ export function TransactionForm({ transaction, onDone }: TransactionFormProps) {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => onDone?.()}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onDone?.()}
+          disabled={pending}
+        >
           Отмена
         </Button>
-        <Button type="submit">Сохранить</Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Сохранение…" : "Сохранить"}
+        </Button>
       </div>
     </form>
   );

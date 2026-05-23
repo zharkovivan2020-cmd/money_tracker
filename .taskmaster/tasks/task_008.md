@@ -2,9 +2,9 @@
 
 **Title:** Edit transaction via Server Action (UPDATE)
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 6
+**Dependencies:** 6 ✓
 
 **Priority:** medium
 

@@ -493,7 +493,7 @@
         "id": "11",
         "title": "Deploy to Vercel with Supabase env",
         "description": "Production deploy with environment variables and git push autodeploy.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           "10"
         ],
@@ -515,23 +515,420 @@
             "id": 2,
             "title": "Deploy and smoke test production",
             "description": "git push main; verify deployment URL.",
-            "status": "deferred",
+            "status": "done",
             "dependencies": [
               1
             ],
             "details": "Check RLS still allows anon for demo.",
             "parentId": "undefined",
-            "updatedAt": "2026-05-21T19:31:19.066Z"
+            "updatedAt": "2026-05-21T19:59:43.418Z"
           }
         ],
-        "updatedAt": "2026-05-21T19:31:19.066Z"
+        "updatedAt": "2026-05-21T19:59:43.418Z"
+      },
+      {
+        "id": "12",
+        "title": "Enable Supabase Email auth provider",
+        "description": "Configure Email provider in Supabase dashboard for sign-up and sign-in.",
+        "status": "done",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "high",
+        "details": "In Supabase: Authentication → Providers → Email enabled. Confirm site URL and redirect URLs for local (localhost:3000) and production Vercel domain. Verify email confirmation flow settings match course expectations.",
+        "testStrategy": "Create a test user from Supabase Auth UI or register flow; confirmation email sends (or disable confirm for dev if documented).",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "13",
+        "title": "Verify @supabase/ssr client setup",
+        "description": "Ensure browser and server Supabase clients exist and match PRD-2 patterns.",
+        "status": "done",
+        "dependencies": [
+          "12"
+        ],
+        "priority": "high",
+        "details": "Confirm @supabase/ssr is installed. src/lib/supabase/client.ts uses createBrowserClient; server.ts uses createServerClient with cookies. Do not use deprecated @supabase/auth-helpers-nextjs.",
+        "testStrategy": "Import both clients from a test page or action without TypeScript errors; env vars NEXT_PUBLIC_SUPABASE_URL and anon key present.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "14",
+        "title": "Add middleware session refresh (updateSession)",
+        "description": "Create src/middleware.ts to refresh auth session on every request via createServerClient.",
+        "status": "done",
+        "dependencies": [
+          "13"
+        ],
+        "priority": "high",
+        "details": "Implement Supabase updateSession pattern in middleware.ts. Matcher excludes static assets. Session cookies updated before route handlers run.",
+        "testStrategy": "Log in; navigate between pages; session persists after refresh. No middleware errors in dev console.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "15",
+        "title": "Build registration page and signUp action",
+        "description": "Add /register with email, password, confirm password; zod validation; signUp Server Action.",
+        "status": "done",
+        "dependencies": [
+          "14"
+        ],
+        "priority": "high",
+        "details": "src/app/(auth)/register/page.tsx and components/auth/register-form.tsx. Server Action calls supabase.auth.signUp. Password min 8 chars, passwords match. Show «Проверьте почту» after success. revalidatePath as needed.",
+        "testStrategy": "Register new user; validation errors show for weak/mismatched passwords; success message displays.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "16",
+        "title": "Build login page, signIn action, and sign out",
+        "description": "Add /login with signInWithPassword; header sign out button.",
+        "status": "done",
+        "dependencies": [
+          "15"
+        ],
+        "priority": "high",
+        "details": "src/app/(auth)/login/page.tsx, login-form.tsx, auth Server Actions signIn/signOut. Redirect to / on success; friendly error under form on failure. Sign out in header via supabase.auth.signOut().",
+        "testStrategy": "Login with valid credentials reaches dashboard; invalid password shows error; sign out returns to logged-out state.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "17",
+        "title": "Add OAuth (Google, GitHub) and auth callback",
+        "description": "Social login buttons and OAuth callback route handler.",
+        "status": "done",
+        "dependencies": [
+          "16"
+        ],
+        "priority": "medium",
+        "details": "components/auth/social-buttons.tsx on login and register. signInWithOAuth for google and github. src/app/auth/callback/route.ts exchanges code for session. Enable providers in Supabase dashboard.",
+        "testStrategy": "OAuth flow completes and user lands on / with active session for each enabled provider.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "18",
+        "title": "Protect app routes with middleware redirects",
+        "description": "Restrict transaction pages to authenticated users; redirect logged-in users away from auth pages.",
+        "status": "done",
+        "dependencies": [
+          "14",
+          "16"
+        ],
+        "priority": "high",
+        "details": "Extend middleware: unauthenticated access to / and /dashboard → redirect /login. Authenticated /login and /register → redirect /. Use getUser() or session from updateSession.",
+        "testStrategy": "Logged out: / redirects to /login. Logged in: /login redirects to /. Dashboard loads only when authenticated.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "19",
+        "title": "Add user_id column, scoped actions, and RLS policies",
+        "description": "Tie transactions to auth.users; enforce auth.uid() = user_id in database policies.",
+        "status": "done",
+        "dependencies": [
+          "18"
+        ],
+        "priority": "high",
+        "details": "Migration: user_id uuid references auth.users on transactions. Server Actions set user_id from supabase.auth.getUser() never from form. Replace open RLS with SELECT/INSERT/UPDATE/DELETE policies auth.uid() = user_id. revalidatePath('/') after mutations.",
+        "testStrategy": "Two users see only their own transactions; cannot read or write another user's rows via UI or direct API.",
+        "updatedAt": "2026-05-23T21:37:25.370Z",
+        "subtasks": []
+      },
+      {
+        "id": "20",
+        "title": "Add profiles table migration and signup trigger",
+        "description": "Create profiles table with role and is_blocked; trigger on auth signup; backfill existing users.",
+        "details": "Migration supabase/migrations/YYYYMMDD_profiles_roles.sql: profiles table (id uuid PK references auth.users, email, role default user, is_blocked default false, blocked_at, created_at). Trigger or function on auth.users insert to create profile row. Backfill existing auth.users without profiles. Update schema.sql.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "19"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:06.783Z"
+      },
+      {
+        "id": "21",
+        "title": "Assign admin role from ADMIN_EMAIL env",
+        "description": "Server-side logic sets role=admin when profile email matches ADMIN_EMAIL.",
+        "details": "Read ADMIN_EMAIL on server only. On profile create or update, if lower(email) equals lower(ADMIN_EMAIL) set role admin else user. Never accept role from client forms. Add ADMIN_EMAIL to .env.example.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "20"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:16.019Z"
+      },
+      {
+        "id": "22",
+        "title": "RLS policies for profiles and blocked users on transactions",
+        "description": "profiles RLS for self read and admin read/update block fields; transactions deny blocked users.",
+        "details": "profiles SELECT own row; admin SELECT all profiles; admin UPDATE is_blocked and blocked_at on other users only. transactions policies add check that auth.uid() profile is not blocked for all CRUD.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "20",
+          "21"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:25.772Z"
+      },
+      {
+        "id": "23",
+        "title": "Service role Supabase client and admin guards",
+        "description": "createServiceRoleClient server-only; isAdmin and requireAdmin helpers.",
+        "details": "src/lib/supabase/admin.ts with SUPABASE_SERVICE_ROLE_KEY. src/lib/admin.ts: getProfile, isAdmin, requireAdmin using getUser plus profiles query. Guards throw or redirect for non-admin callers.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "20"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:35.489Z"
+      },
+      {
+        "id": "24",
+        "title": "Admin Server Actions for user management",
+        "description": "listUsers, setUserBlocked, deleteUser with requireAdmin and service role where needed.",
+        "details": "src/app/actions/admin.ts. listUsers via service role or admin-scoped query. setUserBlocked and unblock update profiles. deleteUser uses auth.admin.deleteUser; prevent self-delete and deleting other admins. revalidatePath('/admin/users') after mutations.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "22",
+          "23"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:44.720Z"
+      },
+      {
+        "id": "25",
+        "title": "Build admin users page and components",
+        "description": "/admin/users table with email, role, status, date, block/unblock, delete actions.",
+        "details": "src/app/admin/layout.tsx admin guard, admin/users/page.tsx, components/admin/users-table.tsx, delete-user-dialog.tsx. Use shadcn table and confirm dialog. Sort by created_at desc; show up to 100 users.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "24"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:04:54.028Z"
+      },
+      {
+        "id": "26",
+        "title": "Middleware and routes for blocked users and admin protection",
+        "description": "Redirect blocked users to /blocked; protect /admin routes.",
+        "details": "Extend middleware or app layout: if profile.is_blocked redirect to /blocked except on /blocked and sign-out flows. Add src/app/blocked/page.tsx with blocked message. admin layout calls requireAdmin. Regular users get 404 or redirect from /admin.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "22",
+          "23"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:05:03.580Z"
+      },
+      {
+        "id": "27",
+        "title": "Admin nav link and project documentation updates",
+        "description": "Show Admin link in header for admins only; update AGENTS.md and .env.example.",
+        "details": "Conditional Admin link in app header when user is admin. Document ADMIN_EMAIL and SUPABASE_SERVICE_ROLE_KEY in .env.example and AGENTS.md per PRD-3.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "25",
+          "26"
+        ],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:05:12.876Z"
+      },
+      {
+        "id": "28",
+        "title": "Manual acceptance testing for roles and admin panel",
+        "description": "End-to-end verification per PRD-3 acceptance criteria.",
+        "details": "Verify admin email sees Admin link. Regular user cannot access /admin. Admin list shows all registered users. Block prevents dashboard access and shows /blocked. Unblock restores access. Delete removes user and transactions. Admin cannot delete self. Two users still see only their own transactions.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "27"
+        ],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:05:23.787Z"
+      },
+      {
+        "id": "29",
+        "title": "Install shadcn UI components via CLI",
+        "description": "Add table, badge, dialog, alert-dialog, sonner, skeleton, tabs, empty, dropdown-menu, breadcrumb, alert through shadcn CLI.",
+        "details": "Run npx shadcn@latest add table badge dialog alert-dialog sonner skeleton tabs empty dropdown-menu breadcrumb alert -y. Verify with npx shadcn@latest info. Keep base-nova preset in components.json. Components land in src/components/ui/.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "28"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:05.446Z"
+      },
+      {
+        "id": "30",
+        "title": "Wire Sonner toaster in root layout",
+        "description": "Add Toaster to app layout and client toast helper for action feedback.",
+        "details": "Add sonner Toaster in src/app/layout.tsx. Create src/lib/toast.ts or showActionToast helper for client components. richColors and closeButton enabled.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:14.879Z"
+      },
+      {
+        "id": "31",
+        "title": "Redesign app header with dropdown menu",
+        "description": "Replace separate header buttons with dropdown; unify spacing across authenticated pages.",
+        "details": "Update src/components/app-header.tsx to use dropdown-menu for Admin and Sign out. Optional src/components/app-shell.tsx for shared auth page wrapper. Admin link only for admins.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "30"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:24.148Z"
+      },
+      {
+        "id": "32",
+        "title": "Improve BalanceSummary and transaction filters with Tabs",
+        "description": "Add lucide icons to summary cards; replace pill filter links with shadcn Tabs.",
+        "details": "Update balance-summary.tsx with TrendingUp, TrendingDown, Wallet icons and month badge. Update home-dashboard.tsx to use Tabs for all/income/expense while keeping ?type= URL param.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "31"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:33.380Z"
+      },
+      {
+        "id": "33",
+        "title": "Rebuild transaction list with Table, Badge, Empty, AlertDialog",
+        "description": "Replace raw HTML table; add badges, empty state, and confirm delete with AlertDialog.",
+        "details": "Refactor transaction-list.tsx to shadcn Table components. Type column uses Badge. Empty state with Empty component and CTA. Delete uses AlertDialog instead of direct action. Keep row click to edit.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "32"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:42.547Z"
+      },
+      {
+        "id": "34",
+        "title": "Migrate transaction form to shadcn Dialog",
+        "description": "Replace native dialog with shadcn Dialog; show toast on successful save.",
+        "details": "Refactor transaction-form.tsx and home-dashboard.tsx to use Dialog, DialogHeader, DialogFooter. Cancel and Save buttons with pending disabled state. Toast on successful create/update via sonner.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "30",
+          "33"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:40:51.832Z"
+      },
+      {
+        "id": "35",
+        "title": "Polish auth login and register forms",
+        "description": "Unified card styling, Alert for errors, pending button states on login/register.",
+        "details": "Update login-form.tsx and register-form.tsx with Alert destructive for errors. Pending states on submit buttons. Consistent spacing with auth layout bg-muted/30 shell.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "30"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:41:01.227Z"
+      },
+      {
+        "id": "36",
+        "title": "Improve blocked account page design",
+        "description": "Align blocked page visually with auth screens; add icon and clearer copy.",
+        "details": "Update src/app/blocked/page.tsx with lucide Ban or ShieldOff icon, centered Card matching login/register, single sign out button.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29"
+        ],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:41:10.629Z"
+      },
+      {
+        "id": "37",
+        "title": "Redesign admin users table with shadcn components",
+        "description": "Table, Badge, DropdownMenu, AlertDialog, Breadcrumb, and toasts for admin user management.",
+        "details": "Refactor users-table.tsx and admin/users/page.tsx. Breadcrumb navigation. Role and status badges. DropdownMenu or icon actions. AlertDialog for delete. Toast feedback after block/unblock/delete.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "29",
+          "30",
+          "31"
+        ],
+        "priority": "high",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:41:19.889Z"
+      },
+      {
+        "id": "38",
+        "title": "UI polish pass: skeleton, mobile, build verification",
+        "description": "Final QA for PRD-4 acceptance criteria: loading states, mobile, lint and build.",
+        "details": "Add optional loading.tsx skeleton for home. Verify tables scroll on mobile. Remove any remaining native dialog or window.confirm. Run npm run build and eslint. Check PRD-4 acceptance checklist.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          "31",
+          "32",
+          "33",
+          "34",
+          "35",
+          "36",
+          "37"
+        ],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2026-05-23T22:41:29.317Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-05-21T19:31:19.066Z",
-      "taskCount": 11,
-      "completedCount": 10,
+      "lastModified": "2026-05-23T22:41:29.318Z",
+      "taskCount": 38,
+      "completedCount": 38,
       "tags": [
         "master"
       ]

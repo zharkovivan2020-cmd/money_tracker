@@ -2,9 +2,9 @@
 
 **Title:** Build monthly balance summary cards
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 4
+**Dependencies:** 4 ✓
 
 **Priority:** high
 

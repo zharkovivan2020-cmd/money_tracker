@@ -2,7 +2,7 @@
 
 **Title:** Bootstrap Next.js project and UI stack
 
-**Status:** pending
+**Status:** done
 
 **Dependencies:** None
 
@@ -22,7 +22,7 @@ Run dev server; verify home route renders with shadcn components and no TypeScri
 
 ### 1.1. Scaffold Next.js 16 App Router project
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Create project with TypeScript and src/ directory layout.
@@ -33,7 +33,7 @@ Use create-next-app or equivalent with App Router, TypeScript, src directory.
 
 ### 1.2. Configure Tailwind CSS 4
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 1.1  
 
 Wire Tailwind 4 with globals.css and PostCSS if required.
@@ -44,7 +44,7 @@ Follow Tailwind 4 setup for Next.js; ensure styles apply on /.
 
 ### 1.3. Install shadcn/ui primitives
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 1.2  
 
 Add Card, Input, Button, Form components to src/components/ui.
@@ -55,7 +55,7 @@ Run shadcn init and add required components per PRD.
 
 ### 1.4. Create placeholder home page
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 1.3  
 
 Add src/app/page.tsx and layout.tsx shell for later features.

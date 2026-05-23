@@ -2,9 +2,9 @@
 
 **Title:** Optional URL filter for transaction type
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 4
+**Dependencies:** 4 ✓
 
 **Priority:** low
 

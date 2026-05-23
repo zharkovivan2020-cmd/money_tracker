@@ -2,9 +2,24 @@ import { NextResponse } from "next/server";
 import { transactionSchema } from "@/lib/transaction-schema";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+async function getAuthenticatedClient() {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) return null;
+  return { supabase, user };
+}
+
+export async function GET() {
+  const auth = await getAuthenticatedClient();
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data, error } = await auth.supabase
     .from("transactions")
     .select("*")
     .order("date", { ascending: false });
@@ -17,6 +32,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await getAuthenticatedClient();
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
   const parsed = transactionSchema.safeParse(body);
 
@@ -27,10 +47,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data, error } = await auth.supabase
     .from("transactions")
-    .insert(parsed.data)
+    .insert({ ...parsed.data, user_id: auth.user.id })
     .select()
     .single();
 
@@ -42,6 +61,11 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const auth = await getAuthenticatedClient();
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
   const id = Number(body?.id);
 
@@ -57,11 +81,11 @@ export async function PUT(request: Request) {
     );
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data, error } = await auth.supabase
     .from("transactions")
     .update(parsed.data)
     .eq("id", id)
+    .eq("user_id", auth.user.id)
     .select()
     .single();
 
@@ -73,14 +97,22 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await getAuthenticatedClient();
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const id = Number(new URL(request.url).searchParams.get("id"));
 
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: "id query param required" }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  const { error } = await auth.supabase
+    .from("transactions")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", auth.user.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

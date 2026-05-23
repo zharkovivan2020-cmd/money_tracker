@@ -2,9 +2,9 @@
 
 **Title:** Display transaction list on home page (READ)
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 3
+**Dependencies:** 3 ✓
 
 **Priority:** high
 

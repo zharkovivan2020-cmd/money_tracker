@@ -6,14 +6,24 @@ import { fileURLToPath } from "url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const env = readFileSync(resolve(root, ".env.local"), "utf8");
 const url = env.match(/NEXT_PUBLIC_SUPABASE_URL=(.+)/)?.[1]?.trim();
-const key = env.match(/NEXT_PUBLIC_SUPABASE_ANON_KEY=(.+)/)?.[1]?.trim();
+const anonKey = env.match(/NEXT_PUBLIC_SUPABASE_ANON_KEY=(.+)/)?.[1]?.trim();
+const serviceKey = env.match(/SUPABASE_SERVICE_ROLE_KEY=(.+)/)?.[1]?.trim();
 
-if (!url || !key) {
-  console.error("Missing Supabase env in .env.local");
+if (!url || (!anonKey && !serviceKey)) {
+  console.error(
+    "Missing Supabase env in .env.local (URL + anon key, or service role for seed after auth)",
+  );
   process.exit(1);
 }
 
+const key = serviceKey ?? anonKey;
 const supabase = createClient(url, key);
+
+if (!serviceKey) {
+  console.warn(
+    "Tip: with RLS auth, seed needs SUPABASE_SERVICE_ROLE_KEY in .env.local (server-only, never commit).",
+  );
+}
 
 const { error: delError } = await supabase
   .from("transactions")
@@ -65,6 +75,9 @@ const rows = [
 const { error } = await supabase.from("transactions").insert(rows);
 if (error) {
   console.error(error.message);
+  console.error(
+    "If RLS requires user_id, run supabase/migrations/20260523120000_auth_user_id.sql and use service role for seed.",
+  );
   process.exit(1);
 }
 

@@ -2,9 +2,9 @@
 
 **Title:** Add transaction via Server Action (CREATE)
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 5
+**Dependencies:** 5 ✓
 
 **Priority:** high
 

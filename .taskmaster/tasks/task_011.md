@@ -2,9 +2,9 @@
 
 **Title:** Deploy to Vercel with Supabase env
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 10
+**Dependencies:** 10 ✓
 
 **Priority:** medium
 
@@ -22,7 +22,7 @@ Production URL loads home page, lists transactions, and create flow works agains
 
 ### 11.1. Configure Vercel project and env vars
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Add Supabase public keys in dashboard.
@@ -33,7 +33,7 @@ Match .env.local variable names.
 
 ### 11.2. Deploy and smoke test production
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** 11.1  
 
 git push main; verify deployment URL.

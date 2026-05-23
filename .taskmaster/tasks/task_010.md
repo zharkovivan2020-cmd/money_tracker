@@ -2,9 +2,9 @@
 
 **Title:** REST API route and Thunder Client testing
 
-**Status:** pending
+**Status:** done
 
-**Dependencies:** 8
+**Dependencies:** 8 ✓
 
 **Priority:** medium
 
